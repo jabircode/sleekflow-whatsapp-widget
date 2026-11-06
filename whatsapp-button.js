@@ -15,6 +15,10 @@
  * Optional: offsetX (default 40px desktop / 24px mobile), offsetY (default 0),
  *           zIndex (default 99999).
  *
+ * Top placements mirror the bottom layout: the launcher's "Powered by" line is
+ * hidden and the same 49px is reserved above the button. Passing offsetY
+ * replaces that gap, so offsetY is the exact distance from the frame.
+ *
  * Everything else is unchanged from the official widget.
  */
 (function () {
@@ -198,7 +202,16 @@
   /* Top placements: the launcher sits above the panel, so swap their order
      and move the 16px gap from the panel's bottom edge to its top edge. */
   :host([position^="top"]) .sf-panel { order: 2; margin: 16px 0 0; }
-  :host([position^="top"]) .sf-actions { order: 1; }
+
+  /* The "Powered by" line under the launcher only makes sense when the widget
+     hangs from the bottom edge — at the top it would sit between the button
+     and the panel. Hide it, and reserve the same 49px it occupied above the
+     button so top placements sit off the frame exactly like bottom ones. */
+  :host([position^="top"]) .sf-powered { display: none; }
+  :host([position^="top"]) .sf-actions {
+    order: 1;
+    padding-top: var(--sf-top-gap, 49px);
+  }
 
   .sf-actions {
     order: 2;
@@ -745,7 +758,12 @@
     var offsetX = cssLength(options.offsetX);
     var offsetY = cssLength(options.offsetY);
     if (offsetX !== null) element.style.setProperty('--sf-offset-x', offsetX);
-    if (offsetY !== null) element.style.setProperty('--sf-offset-y', offsetY);
+    if (offsetY !== null) {
+      element.style.setProperty('--sf-offset-y', offsetY);
+      // An explicit offsetY is the exact distance from the edge, so drop the
+      // built-in top gap instead of adding to it.
+      element.style.setProperty('--sf-top-gap', '0px');
+    }
     if (options.zIndex !== undefined && options.zIndex !== null) {
       element.style.setProperty('--sf-z-index', String(options.zIndex));
     }

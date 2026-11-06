@@ -253,7 +253,7 @@
         </tr>
         <tr>
           <td><code>offsetY</code></td>
-          <td>Distance from the top/bottom viewport edge. Useful to clear a sticky header on top placements.</td>
+          <td>Distance from the top/bottom viewport edge. On top placements it replaces the built-in 49px inset, so it is the exact distance from the frame to the launcher.</td>
           <td class="default"><code>0</code></td>
         </tr>
         <tr>
@@ -287,7 +287,7 @@
       <div class="card">
         <h3>Good to know</h3>
         <ul>
-          <li>The launcher sits flush with the vertical edge, like the official widget. Set <code>offsetY</code> to clear a sticky header.</li>
+          <li>Top placements hide the launcher’s “Powered by” line and keep a 49px inset instead, mirroring the bottom placement. Set <code>offsetY</code> to replace that inset and clear a sticky header.</li>
           <li>The panel shrinks on short viewports instead of running off-screen.</li>
           <li>Styles live in a shadow root, so your page CSS can't clash.</li>
         </ul>
@@ -329,11 +329,10 @@
   let widget = null;
 
   function options() {
-    return Object.assign({}, BASE_OPTIONS, {
-      position: state.position,
-      offsetX: state.offsetX,
-      offsetY: state.offsetY,
-    });
+    const opts = Object.assign({}, BASE_OPTIONS, { position: state.position });
+    if (state.offsetX !== DEFAULTS.offsetX) opts.offsetX = state.offsetX;
+    if (state.offsetY !== DEFAULTS.offsetY) opts.offsetY = state.offsetY;
+    return opts;
   }
 
   function sync() {
@@ -346,8 +345,13 @@
     if (state.offsetX === DEFAULTS.offsetX) widget.style.removeProperty('--sf-offset-x');
     else widget.style.setProperty('--sf-offset-x', state.offsetX + 'px');
 
-    if (state.offsetY === DEFAULTS.offsetY) widget.style.removeProperty('--sf-offset-y');
-    else widget.style.setProperty('--sf-offset-y', state.offsetY + 'px');
+    if (state.offsetY === DEFAULTS.offsetY) {
+      widget.style.removeProperty('--sf-offset-y');
+      widget.style.removeProperty('--sf-top-gap');
+    } else {
+      widget.style.setProperty('--sf-offset-y', state.offsetY + 'px');
+      widget.style.setProperty('--sf-top-gap', '0px');
+    }
 
     document.querySelectorAll('.corner').forEach((btn) => {
       btn.setAttribute('aria-pressed', String(btn.dataset.pos === state.position));

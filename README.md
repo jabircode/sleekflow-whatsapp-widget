@@ -56,6 +56,10 @@ Without a `position` the widget behaves exactly like the official one (bottom-ri
 Shorthands are accepted too: `br`, `bl`, `tr`, `tl`, `left`, `right`. Case and
 separators are ignored, so `'topLeft'`, `'top left'` and `'TOP_LEFT'` all work.
 
+Top placements also drop the launcher's "Powered by" line — it would otherwise sit
+between the button and the panel — and reserve the same 49px the line occupied above
+the button, so the two placements mirror each other.
+
 The official `buttonPosition: 'left' | 'right'` option still works and maps to the
 two bottom corners. If both are given, `position` wins.
 
@@ -69,7 +73,7 @@ two bottom corners. If both are given, `position` wins.
 | --- | --- | --- |
 | `position` | `'bottom-right'` · `'bottom-left'` · `'top-right'` · `'top-left'` | `'bottom-right'` |
 | `offsetX` | Horizontal inset from the viewport edge. Number = px, string = any CSS length (`'2rem'`). | `40` desktop, `24` ≤ 640px |
-| `offsetY` | Vertical inset from the viewport edge. | `0` |
+| `offsetY` | Vertical inset from the viewport edge. On top placements it replaces the built-in 49px gap. | `0` |
 | `zIndex` | Stacking order. | `99999` |
 
 ### Unchanged from the official script
@@ -101,15 +105,19 @@ Calling `whatsappButton()` again replaces the existing widget.
 
 ## Top placement and sticky headers
 
-Like the official widget, the launcher sits flush with the vertical edge — `offsetY: 0`
-at the top. Most sites have a sticky header there, so top placements will usually want
-a vertical inset:
+At the bottom the launcher sits 49px off the frame — that is the height of the
+"Powered by" line below it. Top placements hide that line and reserve the same 49px
+above the button, so both placements sit the same distance from their edge.
+
+Most sites have a sticky header at the top, so top placements will usually want a
+vertical inset. On a top placement `offsetY` **replaces** the 49px gap, so this puts
+the launcher exactly 88px from the top:
 
 ```js
 whatsappButton({ position: 'top-right', offsetY: 88 });
 ```
 
-| `offsetY: 0` (default) | `offsetY: 88` |
+| default (49px inset) | `offsetY: 88` |
 | :---: | :---: |
 | ![](screenshots/top-right.png) | ![](screenshots/top-right-offset.png) |
 
