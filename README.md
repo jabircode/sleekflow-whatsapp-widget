@@ -124,8 +124,10 @@ whatsappButton({ position: 'top-right', offsetY: 88 });
 `offsetX` / `offsetY` also apply on mobile unless you pass a value yourself — pass one
 and it is used at every breakpoint.
 
-On phones the panel drops to `24px` from the side edges and is capped to the viewport
-height, so it stays usable on landscape screens:
+On phones the launcher drops its label and becomes the icon alone — a "Message Us"
+pill crowds the corner and fights with the site header. The panel also drops to `24px`
+from the side edges and is capped to the viewport height, so it stays usable on
+landscape screens:
 
 | top-right on iPhone | bottom-left on iPhone |
 | :---: | :---: |

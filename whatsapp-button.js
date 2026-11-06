@@ -19,6 +19,9 @@
  * hidden and the same 49px is reserved above the button. Passing offsetY
  * replaces that gap, so offsetY is the exact distance from the frame.
  *
+ * On viewports up to 640px the launcher collapses to the icon alone — the
+ * buttonName label is hidden so the pill doesn't crowd the corner.
+ *
  * Everything else is unchanged from the official widget.
  */
 (function () {
@@ -389,12 +392,22 @@
     transition: opacity 0.3s;
   }
   .sf-launcher:hover { opacity: 80%; }
-  .sf-launcher--sm { padding: 9px; }
-  .sf-launcher--md { padding: 13px; }
-  .sf-launcher--lg { padding: 17px; }
+  .sf-launcher--sm { --sf-launcher-padding: 9px; padding: var(--sf-launcher-padding); }
+  .sf-launcher--md { --sf-launcher-padding: 13px; padding: var(--sf-launcher-padding); }
+  .sf-launcher--lg { --sf-launcher-padding: 17px; padding: var(--sf-launcher-padding); }
   .sf-launcher--labelled {
     padding-right: 40px !important;
     padding-left: 40px !important;
+  }
+
+  /* Phones get the icon on its own — a pill with "Message Us" crowds the
+     corner and fights with the site header. */
+  @media screen and (max-width: 640px) {
+    .sf-launcher-label { display: none; }
+    .sf-launcher--labelled {
+      padding-right: var(--sf-launcher-padding) !important;
+      padding-left: var(--sf-launcher-padding) !important;
+    }
   }
   .sf-launcher-inner {
     position: relative;
