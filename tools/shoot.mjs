@@ -85,6 +85,8 @@ const client = connect(pages[0].webSocketDebuggerUrl);
 await client.ready;
 await client.send('Runtime.enable');
 await client.send('Page.enable');
+await client.send('Network.enable');
+await client.send('Network.setCacheDisabled', { cacheDisabled: true });
 
 await client.send('Emulation.setDeviceMetricsOverride', {
   width: opt.w,
