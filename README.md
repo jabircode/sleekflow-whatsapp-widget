@@ -53,7 +53,8 @@ Without a `position` the widget behaves exactly like the official one (bottom-ri
 | `top-right` | top-right | downward, right-aligned |
 | `top-left` | top-left | downward, left-aligned |
 
-Shorthands are accepted too: `br`, `bl`, `tr`, `tl`, `left`, `right`.
+Shorthands are accepted too: `br`, `bl`, `tr`, `tl`, `left`, `right`. Case and
+separators are ignored, so `'topLeft'`, `'top left'` and `'TOP_LEFT'` all work.
 
 The official `buttonPosition: 'left' | 'right'` option still works and maps to the
 two bottom corners. If both are given, `position` wins.

@@ -694,12 +694,20 @@
     bl: 'bottom-left',
     tr: 'top-right',
     tl: 'top-left',
+    bottomright: 'bottom-right',
+    bottomleft: 'bottom-left',
+    topright: 'top-right',
+    topleft: 'top-left',
   };
 
   function resolvePosition(options) {
     var raw = String(options.position || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
     if (POSITIONS[raw]) return raw;
     if (POSITION_ALIASES[raw]) return POSITION_ALIASES[raw];
+
+    // 'topLeft', 'top right', 'TOP_LEFT' — ignore separators entirely.
+    var compact = raw.replace(/-/g, '');
+    if (POSITION_ALIASES[compact]) return POSITION_ALIASES[compact];
 
     // Backwards compatibility with the official option name / values.
     var legacy = String(options.buttonPosition || '').trim().toLowerCase();
