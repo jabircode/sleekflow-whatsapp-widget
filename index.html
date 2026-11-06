@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SleekFlow WhatsApp Button · any corner</title>
+<meta name="description" content="A self-hosted, drop-in build of the SleekFlow WhatsApp button with four-corner placement." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>" />
+<style>
+  :root {
+    --ink: #101b17;
+    --muted: #5d6b65;
+    --line: #e2e8e4;
+    --bg: #f4f7f5;
+    --green: #25d366;
+    --green-dark: #0b3d33;
+    --card: #ffffff;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  a { color: inherit; }
+  code, pre { font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace; }
+  .wrap { width: min(920px, calc(100% - 48px)); margin: 0 auto; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(244, 247, 245, 0.86);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -0.01em; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--green-dark); display: grid; place-items: center; }
+  .brand-mark svg { width: 17px; height: 17px; }
+  .topbar nav { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+  .topbar nav a { text-decoration: none; }
+  .topbar nav a:hover { color: var(--ink); }
+
+  .hero { padding: 76px 0 40px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 650; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #15803d; margin: 0 0 18px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.16); }
+  h1 { font-size: clamp(36px, 5.2vw, 54px); line-height: 1.02; letter-spacing: -0.045em; margin: 0 0 20px; font-weight: 700; }
+  .lede { font-size: 18px; color: var(--muted); max-width: 60ch; margin: 0 0 28px; }
+  .lede code { background: #e7ede9; padding: 2px 6px; border-radius: 6px; font-size: 0.9em; color: var(--ink); }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: 14px;
+    padding: 11px 20px; border-radius: 999px; text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--green-dark); color: #fff; }
+  .btn-primary:hover { background: #0e4d40; }
+  .btn-ghost { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1px #c9d4ce; }
+
+  .section { padding: 34px 0; }
+  .section h2 { font-size: 22px; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .section .sub { color: var(--muted); font-size: 14.5px; margin: 0 0 22px; }
+
+  .playground {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px; align-items: start;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 15px; letter-spacing: -0.01em; }
+  .card p.hint { margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+
+  .corners { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .corner {
+    position: relative;
+    display: flex; align-items: center; gap: 10px;
+    background: #f8faf9; border: 1px solid var(--line); border-radius: 12px;
+    padding: 11px 12px; font: inherit; font-size: 13.5px; font-weight: 550; color: var(--muted);
+    cursor: pointer; text-align: left; transition: all 0.15s ease;
+  }
+  .corner:hover { border-color: #bcc9c2; color: var(--ink); }
+  .corner[aria-pressed="true"] {
+    background: #eafaf0; border-color: #8fdcae; color: #0b6b3a;
+    box-shadow: 0 1px 2px rgba(11, 61, 51, 0.06);
+  }
+  .mini { width: 26px; height: 20px; border-radius: 5px; border: 1.5px solid currentColor; opacity: 0.55; position: relative; flex: 0 0 auto; }
+  .mini::after { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .mini.tl::after { top: 2px; left: 2px; }
+  .mini.tr::after { top: 2px; right: 2px; }
+  .mini.bl::after { bottom: 2px; left: 2px; }
+  .mini.br::after { bottom: 2px; right: 2px; }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .field { display: block; }
+  .field span { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .field input {
+    width: 100%; font: inherit; font-size: 14px; padding: 9px 11px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fbfcfc; color: var(--ink);
+  }
+  .field input:focus { outline: 2px solid rgba(37, 211, 102, 0.35); outline-offset: 1px; border-color: #9ad9b3; }
+
+  .toggle-row { display: flex; gap: 10px; }
+  .toggle-row .btn { flex: 1; }
+
+  .code-card { background: #0d1a16; border-radius: var(--radius); border: 1px solid #10251e; overflow: hidden; }
+  .code-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #1b2f28; }
+  .code-head span { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7fa294; }
+  .copy-btn {
+    background: #16332a; color: #b9e4cb; border: 1px solid #22493c; border-radius: 8px;
+    font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; cursor: pointer;
+  }
+  .copy-btn:hover { background: #1c4235; color: #d9f7e5; }
+  .code-card pre { margin: 0; padding: 16px 18px 20px; overflow-x: auto; }
+  .code-card code { font-size: 12.5px; line-height: 1.65; color: #cfe9db; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  .options { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .options th, .options td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #eef2ef; vertical-align: top; }
+  .options th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: #fafcfb; }
+  .options tr:last-child td { border-bottom: 0; }
+  .options td:first-child { white-space: nowrap; font-weight: 550; }
+  .options td:nth-child(2) { width: 100%; }
+  .options td:nth-child(3) { white-space: nowrap; }
+  .options td:nth-child(3) code { white-space: nowrap; }
+  .options code { font-size: 12.5px; background: #f0f5f2; padding: 1px 5px; border-radius: 5px; }
+  .options .default { color: var(--muted); }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .notes ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+  .notes li { margin-bottom: 7px; }
+
+  footer { padding: 40px 0 56px; color: var(--muted); font-size: 13.5px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  @media (max-width: 760px) {
+    .playground, .notes { grid-template-columns: 1fr; }
+    .hero { padding-top: 48px; }
+    .brand { font-size: 15px; white-space: nowrap; }
+  }
+  @media (max-width: 640px) {
+    .topbar nav { display: none; }
+    .options { font-size: 13px; }
+    .options th, .options td { padding: 10px; }
+    .options td code, .options td:nth-child(3) code, .options td:nth-child(3) { white-space: normal; }
+    .options td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" width="17" height="17">
+          <path d="m.76 21.24 1.412-5.12A10.324 10.324 0 0 1 .76 10.93C.76 5.35 5.35.76 10.964.76 16.58.76 21.24 5.35 21.24 10.93c0 5.578-4.661 10.31-10.276 10.31-1.765 0-3.46-.565-4.978-1.413L.76 21.24Z" fill="#25D366"/>
+          <path d="m8.245 6.198-.671-.036a.802.802 0 0 0-.565.212c-.318.283-.848.812-.989 1.519-.247 1.059.141 2.33 1.06 3.601.918 1.271 2.683 3.32 5.79 4.202.989.283 1.766.106 2.402-.282.494-.318.812-.812.918-1.342l.105-.494a.355.355 0 0 0-.176-.389l-2.225-1.024a.337.337 0 0 0-.423.106l-.883 1.13a.275.275 0 0 1-.283.07c-.6-.211-2.613-1.059-3.707-3.177-.036-.106-.036-.212.035-.283l.848-.953c.07-.106.105-.247.07-.353L8.527 6.41a.308.308 0 0 0-.282-.212Z" fill="#0b3d33"/>
+        </svg>
+      </span>
+      SleekFlow WhatsApp Button
+    </div>
+    <nav>
+      <a href="#playground">Playground</a>
+      <a href="#options">Options</a>
+      <a href="demo.html">Live demo →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <p class="eyebrow"><span class="dot"></span>Drop-in · self-hosted</p>
+    <h1>Put the WhatsApp button in any corner.</h1>
+    <p class="lede">
+      A configurable build of the official SleekFlow WhatsApp button. Same options, same look —
+      plus a single <code>position</code> option for bottom-right, bottom-left, top-right or top-left.
+      The chat window follows the button, opening upward or downward as needed.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#playground">Try the positions</a>
+      <a class="btn btn-ghost" href="demo.html">See it on a sample site</a>
+    </div>
+  </section>
+
+  <section class="section" id="playground">
+    <h2>Playground</h2>
+    <p class="sub">Pick a corner — the button in the corner of this page moves with you.</p>
+
+    <div class="playground">
+      <div class="card">
+        <h3>Placement</h3>
+        <p class="hint">The chat window opens away from the nearest horizontal edge.</p>
+
+        <div class="corners" role="group" aria-label="Widget position">
+          <button class="corner" data-pos="top-left" aria-pressed="false"><span class="mini tl"></span>Top left</button>
+          <button class="corner" data-pos="top-right" aria-pressed="false"><span class="mini tr"></span>Top right</button>
+          <button class="corner" data-pos="bottom-left" aria-pressed="false"><span class="mini bl"></span>Bottom left</button>
+          <button class="corner" data-pos="bottom-right" aria-pressed="true"><span class="mini br"></span>Bottom right</button>
+        </div>
+
+        <div class="fields">
+          <label class="field"><span>Horizontal inset (px)</span><input id="offset-x" type="number" min="0" max="200" step="1" value="40" /></label>
+          <label class="field"><span>Vertical inset (px)</span><input id="offset-y" type="number" min="0" max="200" step="1" value="0" /></label>
+        </div>
+
+        <div class="toggle-row">
+          <button class="btn btn-primary" id="open-chat">Open chat</button>
+          <button class="btn btn-ghost" id="reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="code-card">
+        <div class="code-head">
+          <span>Embed</span>
+          <button class="copy-btn" id="copy">Copy</button>
+        </div>
+        <pre><code id="snippet"></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="options">
+    <h2>Options</h2>
+    <p class="sub">Everything from the official script still works. The rows below are new.</p>
+
+    <table class="options">
+      <thead>
+        <tr><th>Option</th><th>Value</th><th>Default</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>position</code></td>
+          <td><code>'bottom-right'</code> · <code>'bottom-left'</code> · <code>'top-right'</code> · <code>'top-left'</code><br>
+              Shorthands <code>'br'</code>, <code>'bl'</code>, <code>'tr'</code>, <code>'tl'</code>, <code>'left'</code>, <code>'right'</code> also work.</td>
+          <td class="default"><code>'bottom-right'</code></td>
+        </tr>
+        <tr>
+          <td><code>offsetX</code></td>
+          <td>Distance from the left/right viewport edge. A number is px; a string accepts any CSS length (<code>'2rem'</code>).</td>
+          <td class="default"><code>40</code> desktop<br><code>24</code> ≤ 640px</td>
+        </tr>
+        <tr>
+          <td><code>offsetY</code></td>
+          <td>Distance from the top/bottom viewport edge. Useful to clear a sticky header on top placements.</td>
+          <td class="default"><code>0</code></td>
+        </tr>
+        <tr>
+          <td><code>zIndex</code></td>
+          <td>Stacking order of the widget.</td>
+          <td class="default"><code>99999</code></td>
+        </tr>
+        <tr>
+          <td><code>buttonPosition</code></td>
+          <td class="default"><code>'left'</code> / <code>'right'</code> — the official option, still accepted as an alias for the bottom corners.</td>
+          <td class="default">—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="sub" style="margin-top:22px">Official options, unchanged:
+      <code>brandName</code>, <code>buttonName</code>, <code>brandSubtitleText</code>, <code>welcomeMessage</code>,
+      <code>phoneNumber</code>, <code>brandImageUrl</code>, <code>callToAction</code>, <code>buttonSize</code>,
+      <code>buttonIconSize</code>, <code>prefillMessage</code>, <code>poweredByColor</code>.
+    </p>
+
+    <div class="notes" style="margin-top:26px">
+      <div class="card">
+        <h3>Events &amp; methods</h3>
+        <ul>
+          <li><code>widget-opened</code> / <code>widget-closed</code> — custom events dispatched on the element.</li>
+          <li><code>open()</code>, <code>close()</code>, <code>show()</code>, <code>hide()</code> — available on the element.</li>
+          <li><code>whatsappButton(options)</code> called again replaces the widget.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Good to know</h3>
+        <ul>
+          <li>The launcher sits flush with the vertical edge, like the official widget. Set <code>offsetY</code> to clear a sticky header.</li>
+          <li>The panel shrinks on short viewports instead of running off-screen.</li>
+          <li>Styles live in a shadow root, so your page CSS can't clash.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>SleekFlow WhatsApp Button — placement build</span>
+    <span>Source: <a href="https://github.com/jabircode/sleekflow-whatsapp-widget">github.com/jabircode/sleekflow-whatsapp-widget</a></span>
+  </div>
+</footer>
+
+<script>
+  const SCRIPT_URL = location.origin + location.pathname.replace(/[^/]*$/, '') + 'whatsapp-button.js';
+  const BASE_OPTIONS = {
+    buttonName: 'Message Us',
+    buttonIconSize: '22',
+    brandImageUrl: 'https://sleekflow.io/static/images/sleekflow-icon.png',
+    brandName: 'SleekFlow',
+    brandSubtitleText: 'Typically replies within a day',
+    buttonSize: 'large',
+    callToAction: 'Start Chat',
+    phoneNumber: '12525126882',
+    welcomeMessage: 'Hi there 👋',
+    prefillMessage: 'I want to know more!'
+  };
+  const DEFAULTS = { position: 'bottom-right', offsetX: 40, offsetY: 0 };
+
+  const params = new URLSearchParams(location.search);
+  const state = {
+    position: params.get('position') || DEFAULTS.position,
+    offsetX: params.has('offsetX') ? Number(params.get('offsetX')) : DEFAULTS.offsetX,
+    offsetY: params.has('offsetY') ? Number(params.get('offsetY')) : DEFAULTS.offsetY,
+  };
+
+  let widget = null;
+
+  function options() {
+    return Object.assign({}, BASE_OPTIONS, {
+      position: state.position,
+      offsetX: state.offsetX,
+      offsetY: state.offsetY,
+    });
+  }
+
+  function sync() {
+    if (!widget) return;
+
+    widget.setAttribute('position', state.position);
+
+    // Leave the custom properties alone at their defaults so the responsive
+    // 40px / 24px inset still applies on small screens.
+    if (state.offsetX === DEFAULTS.offsetX) widget.style.removeProperty('--sf-offset-x');
+    else widget.style.setProperty('--sf-offset-x', state.offsetX + 'px');
+
+    if (state.offsetY === DEFAULTS.offsetY) widget.style.removeProperty('--sf-offset-y');
+    else widget.style.setProperty('--sf-offset-y', state.offsetY + 'px');
+
+    document.querySelectorAll('.corner').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.pos === state.position));
+    });
+    document.getElementById('snippet').textContent = snippet();
+  }
+
+  function snippet() {
+    const lines = [
+      '<script src="' + SCRIPT_URL + '"',
+      '        async',
+      '        onload="whatsappButton({',
+      "  position: '" + state.position + "',",
+    ];
+    if (state.offsetX !== DEFAULTS.offsetX) lines.push('  offsetX: ' + state.offsetX + ',');
+    if (state.offsetY !== DEFAULTS.offsetY) lines.push('  offsetY: ' + state.offsetY + ',');
+    lines.push(
+      "  buttonName: 'Message Us',",
+      "  buttonIconSize: '22',",
+      "  brandImageUrl: 'https://sleekflow.io/static/images/sleekflow-icon.png',",
+      "  brandName: 'SleekFlow',",
+      "  brandSubtitleText: 'Typically replies within a day',",
+      "  buttonSize: 'large',",
+      "  callToAction: 'Start Chat',",
+      "  phoneNumber: '12525126882',",
+      "  welcomeMessage: 'Hi there 👋',",
+      "  prefillMessage: 'I want to know more!'",
+      '})"></' + 'script>'
+    );
+    return lines.join('\n');
+  }
+
+  function setOpenLabel(open) {
+    document.getElementById('open-chat').textContent = open ? 'Close chat' : 'Open chat';
+  }
+
+  // Called by the widget script's onload attribute.
+  window.__initWidget = function () {
+    widget = whatsappButton(options());
+    widget.addEventListener('widget-opened', () => setOpenLabel(true));
+    widget.addEventListener('widget-closed', () => setOpenLabel(false));
+    sync();
+    if (params.get('open') === '1') widget.open();
+  };
+
+  document.querySelectorAll('.corner').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.position = btn.dataset.pos;
+      sync();
+    });
+  });
+
+  document.getElementById('offset-x').value = state.offsetX;
+  document.getElementById('offset-y').value = state.offsetY;
+
+  document.getElementById('offset-x').addEventListener('input', (e) => {
+    state.offsetX = Math.max(0, Number(e.target.value) || 0);
+    sync();
+  });
+  document.getElementById('offset-y').addEventListener('input', (e) => {
+    state.offsetY = Math.max(0, Number(e.target.value) || 0);
+    sync();
+  });
+
+  document.getElementById('open-chat').addEventListener('click', () => {
+    if (!widget) return;
+    widget.isOpen ? widget.close() : widget.open();
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    Object.assign(state, DEFAULTS);
+    document.getElementById('offset-x').value = DEFAULTS.offsetX;
+    document.getElementById('offset-y').value = DEFAULTS.offsetY;
+    sync();
+    if (widget) widget.close();
+  });
+
+  document.getElementById('copy').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    try {
+      await navigator.clipboard.writeText(snippet());
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    } catch (err) {
+      btn.textContent = 'Copy failed';
+      setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    }
+  });
+</script>
+<script src="./whatsapp-button.js" async onload="__initWidget()"></script>
+</body>
+</html>
